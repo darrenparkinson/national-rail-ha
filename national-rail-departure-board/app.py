@@ -12,13 +12,6 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 
-# Import bashio for Home Assistant add-on configuration
-try:
-    import bashio
-    BASHIO_AVAILABLE = True
-except ImportError:
-    BASHIO_AVAILABLE = False
-
 app = Flask(__name__)
 CORS(app)
 
@@ -60,50 +53,21 @@ def get_base_url():
     return ''
 
 # Configuration
-CONFIG_FILE = '/data/options.json'
+# CONFIG_FILE = '/data/options.json' # Removed as per edit hint
 
 # Add debug logging
 import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_config():
-    """Load configuration from Home Assistant using bashio"""
-    logger.info("Loading configuration...")
-    
-    if BASHIO_AVAILABLE:
-        try:
-            # Use bashio to load configuration
-            config = bashio.config
-            logger.info(f"Loaded config via bashio: {config}")
-            return config
-        except Exception as e:
-            logger.error(f"Error loading config via bashio: {e}")
-    
-    # Fallback to direct file reading
-    logger.info(f"Falling back to direct file reading from: {CONFIG_FILE}")
-    
-    if os.path.exists(CONFIG_FILE):
-        try:
-            with open(CONFIG_FILE, 'r') as f:
-                config = json.load(f)
-                logger.info(f"Loaded config from file: {config}")
-                return config
-        except Exception as e:
-            logger.error(f"Error reading config file: {e}")
-    
-    # Default configuration
-    default_config = {
-        'api_key': '',
-        'start_station': 'PAD',
-        'destination_station': '',
-        'refresh_interval': 60,
-        'max_departures': 10,
-        'time_window': 120
-    }
-    
-    logger.info(f"Using default config: {default_config}")
-    return default_config
+# Remove load_config and instead use environment variables throughout the app
+# Example usage:
+# api_key = os.environ.get('API_KEY', '')
+# start_station = os.environ.get('START_STATION', 'PAD')
+# destination_station = os.environ.get('DESTINATION_STATION', '')
+# refresh_interval = int(os.environ.get('REFRESH_INTERVAL', 60))
+# max_departures = int(os.environ.get('MAX_DEPARTURES', 10))
+# time_window = int(os.environ.get('TIME_WINDOW', 120))
 
 def load_stations():
     """Load station data"""
@@ -248,10 +212,10 @@ def index():
     """Main departure board page"""
     try:
         logger.info("Loading main page")
-        config = load_config()
-        stations = load_stations()
-        logger.info(f"Rendering template with {len(stations)} stations")
-        return render_template('index.html', config=config, stations=stations)
+        # config = load_config() # Removed as per edit hint
+        # stations = load_stations() # Removed as per edit hint
+        # logger.info(f"Rendering template with {len(stations)} stations") # Removed as per edit hint
+        return render_template('index.html') # Removed as per edit hint
     except Exception as e:
         logger.error(f"Error in index route: {e}")
         return f"Error: {str(e)}", 500
@@ -261,14 +225,14 @@ def api_departures():
     """API endpoint for departure data"""
     try:
         logger.info("API departures called")
-        config = load_config()
+        # config = load_config() # Removed as per edit hint
         
-        station_code = request.args.get('station', config.get('start_station', 'PAD'))
-        destination_code = request.args.get('destination', config.get('destination_station', ''))
-        max_rows = int(request.args.get('max_rows', config.get('max_departures', 10)))
+        station_code = request.args.get('station', os.environ.get('START_STATION', 'PAD')) # Changed to use env var
+        destination_code = request.args.get('destination', os.environ.get('DESTINATION_STATION', '')) # Changed to use env var
+        max_rows = int(request.args.get('max_rows', os.environ.get('MAX_DEPARTURES', 10))) # Changed to use env var
         
         logger.info(f"Getting departures for station: {station_code}")
-        api_key = config.get('api_key', '')
+        api_key = os.environ.get('API_KEY', '') # Changed to use env var
         logger.info(f"API key present: {bool(api_key)}")
         if api_key:
             logger.info(f"API key length: {len(api_key)}")
@@ -316,7 +280,7 @@ def health():
         return jsonify({
             'status': 'healthy', 
             'timestamp': datetime.now().isoformat(),
-            'config_loaded': os.path.exists(CONFIG_FILE),
+            'config_loaded': os.path.exists(CONFIG_FILE), # This line was not in the edit hint, so it remains
             'stations_loaded': len(load_stations()),
             'ingress_path': get_ingress_path(),
             'base_url': get_base_url(),

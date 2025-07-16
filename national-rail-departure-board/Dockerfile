@@ -9,7 +9,7 @@ RUN apk add --no-cache \
     libffi-dev \
     openssl-dev \
     cargo \
-    bashio
+    py3-pip
 
 # Set working directory
 WORKDIR /app
@@ -18,10 +18,13 @@ WORKDIR /app
 COPY requirements.txt .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 
 # Copy application files
 COPY . .
+
+# Ensure run.sh is executable
+RUN chmod a+x /run.sh
 
 # Ensure icon is accessible
 RUN if [ -f icon.png ]; then chmod 644 icon.png; fi
@@ -46,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8124/health || exit 1
 
 # Start the application
-CMD ["python", "app.py"] 
+CMD ["/run.sh"] 

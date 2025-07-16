@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Rail Departure Board</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="{{ url_for('static', filename='images/nre-logo.png') }}" alt="National Rail" class="logo" onerror="this.style.display='none'">
+                    <div class="title">
+                        <h1>Departure Board</h1>
+                        <div class="station-selector">
+                            <label for="stationSelect" class="sr-only">Select Station</label>
+                            <select id="stationSelect" class="station-dropdown" aria-label="Select station">
+                                <option value="">Select Station...</option>
+                                {% for station in stations %}
+                                <option value="{{ station['CRS Code'] }}" 
+                                        {% if station['CRS Code'] == config.start_station %}selected{% endif %}>
+                                    {{ station['Station Name'] }} ({{ station['CRS Code'] }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-info">
+                    <div class="current-time" id="currentTime"></div>
+                    <div class="last-updated" id="lastUpdated"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Departure Board -->
+        <main class="departure-board">
+            <div class="board-header">
+                <div class="board-title">
+                    <h2 id="stationName">Departures</h2>
+                </div>
+                <div class="board-controls">
+                    <button id="refreshBtn" class="refresh-btn" aria-label="Refresh departures" title="Refresh departures">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <div class="auto-refresh">
+                        <label for="autoRefresh">Auto-refresh:</label>
+                        <input type="checkbox" id="autoRefresh" checked>
+                    </div>
+                </div>
+            </div>
+
+            <div class="departures-container">
+                <div class="departures-header">
+                    <div class="header-item">Time</div>
+                    <div class="header-item">Destination</div>
+                    <div class="header-item">Operator</div>
+                    <div class="header-item">Platform</div>
+                    <div class="header-item">Status</div>
+                </div>
+                
+                <div class="departures-list" id="departuresList">
+                    <!-- Departures will be populated here -->
+                </div>
+            </div>
+        </main>
+
+        <!-- Loading Indicator -->
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>Loading departures...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="errorText"></span>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html> 

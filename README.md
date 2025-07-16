@@ -2,9 +2,8 @@
 
 A beautiful departure board for UK railway stations using National Rail data, designed as a Home Assistant community add-on.
 
-## Features
+## 🚂 Features
 
-- 🚂 Real-time departure information from National Rail API
 - 🎨 Beautiful National Rail branded interface
 - 📱 Responsive design for all devices
 - ⚡ Auto-refresh functionality
@@ -12,56 +11,51 @@ A beautiful departure board for UK railway stations using National Rail data, de
 - 📊 Status indicators (On Time, Delayed, Cancelled, Platform Change)
 - 🔄 Manual refresh option
 - 🕐 Live clock display
+- 🧪 Mock data for testing (no API key required)
 
-## Screenshots
+## 📦 Installation
 
-The add-on provides a clean, professional departure board interface with:
-- National Rail branding and colors
-- Real-time departure updates
-- Station selection dropdown
-- Status indicators with icons
-- Responsive design for mobile and desktop
+### Home Assistant
 
-## Installation
-
-### Prerequisites
-
-- Home Assistant (version 2023.8 or later)
-- National Rail API key (optional - mock data available for testing)
-
-### Getting a National Rail API Key
-
-1. Visit the [National Rail Data Portal](https://www.nationalrail.co.uk/developers/)
-2. Register for an account
-3. Apply for API access
-4. Once approved, you'll receive your API key
-
-### Installation Steps
-
-1. **Add the repository to Home Assistant:**
-   - Go to Settings → Add-ons → Add-on Store
-   - Click the three dots in the top right
-   - Select "Repositories"
-   - Add this repository URL
+1. **Add this repository to Home Assistant:**
+   - Go to **Settings** → **Add-ons** → **Add-on Store**
+   - Click the three dots (⋮) in the top right
+   - Select **"Repositories"**
+   - Add: `https://github.com/darrenparkinson/national-rail-ha`
+   - Click **"Add"**
 
 2. **Install the add-on:**
    - Find "National Rail Departure Board" in the add-on store
-   - Click "Install"
+   - Click **"Install"**
    - Wait for installation to complete
 
-3. **Configure the add-on:**
-   - Click "Configuration" tab
-   - Enter your National Rail API key (optional)
-   - Set your preferred start station (default: PAD - London Paddington)
-   - Set destination station (optional - for filtered results)
-   - Configure refresh interval and other options
-   - Click "Save"
+3. **Configure and start:**
+   - Click **"Configuration"** tab
+   - Set your preferred station (default: PAD - London Paddington)
+   - Optionally add your National Rail API key
+   - Click **"Save"**
+   - Click **"Start"**
 
-4. **Start the add-on:**
-   - Click "Start"
-   - The departure board will be available at the provided URL
+### Local Development
 
-## Configuration Options
+```bash
+# Clone the repository
+git clone https://github.com/darrenparkinson/national-rail-ha.git
+cd national-rail-ha
+
+# Install dependencies
+python3 -m venv venv
+source venv/bin/activate
+pip install -r national-rail-departure-board/requirements.txt
+
+# Run locally
+cd national-rail-departure-board
+python app.py
+```
+
+Then visit: http://localhost:8123
+
+## ⚙️ Configuration
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
@@ -72,148 +66,89 @@ The add-on provides a clean, professional departure board interface with:
 | `max_departures` | integer | 10 | Maximum number of departures to display |
 | `time_window` | integer | 120 | Time window for departures in minutes |
 
-## Station Codes
+## 🚉 Station Codes
 
-The add-on uses CRS (Computer Reservation System) codes for stations. Common examples:
-
+Common station codes:
 - **PAD** - London Paddington
 - **WAT** - London Waterloo
 - **VIC** - London Victoria
-- **LBG** - London Bridge
 - **RDG** - Reading
 - **BRI** - Bristol Temple Meads
 - **MAN** - Manchester Piccadilly
-- **BHM** - Birmingham New Street
-- **EDB** - Edinburgh Waverley
 
-A complete list of station codes is included in the `stations.json` file.
+A complete list is included in the add-on.
 
-## Usage
+## 🎯 Usage
 
-### Web Interface
+1. **Access the departure board** via the add-on URL or Home Assistant sidebar
+2. **Select a station** using the dropdown in the header
+3. **View departures** with real-time updates every 60 seconds
+4. **Monitor status** with color-coded indicators for delays and cancellations
 
-1. **Access the departure board:**
-   - Open the add-on URL in your browser
-   - Or access via Home Assistant sidebar
+## 🧪 Testing
 
-2. **Select a station:**
-   - Use the dropdown in the header to change stations
-   - The board will automatically refresh with new data
-
-3. **Refresh data:**
-   - Click the refresh button for manual updates
-   - Toggle auto-refresh on/off as needed
-
-4. **View departure details:**
-   - Time (with delay indicators)
-   - Destination
-   - Operator
-   - Platform
-   - Status with color coding
-
-### API Endpoints
-
-The add-on provides several API endpoints:
-
-- `GET /` - Main departure board interface
-- `GET /api/departures?station={code}` - Departure data for a station
-- `GET /api/stations` - List of all stations
-- `GET /health` - Health check endpoint
-
-## Development
-
-### Local Development
-
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd national-rail-ha
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run locally:**
-   ```bash
-   python app.py
-   ```
-
-4. **Access the application:**
-   - Open http://localhost:8123 in your browser
-
-### Testing
-
-The add-on includes mock data for testing without an API key:
-
-- Mock departures are generated automatically
-- Realistic train operators and destinations
-- Various status conditions (On Time, Delayed, Cancelled)
-- Platform assignments and delays
-
-### Building
-
-To build the add-on for Home Assistant:
+The add-on includes comprehensive testing:
 
 ```bash
-docker build -t national-rail-departure-board .
+# Test the application
+python test_app.py
 ```
 
-## Troubleshooting
+## 📁 Repository Structure
+
+```
+national-rail-ha/
+├── national-rail-departure-board/  # Home Assistant add-on
+│   ├── app.py                      # Main Flask application
+│   ├── config.yaml                 # Add-on configuration
+│   ├── Dockerfile                  # Container definition
+│   ├── requirements.txt            # Python dependencies
+│   ├── templates/                  # HTML templates
+│   ├── static/                     # CSS, JS, images
+│   └── stations.json              # UK station data
+├── README.md                       # This file
+├── SETUP_GUIDE.md                 # Detailed setup guide
+└── test_app.py                    # Test script
+```
+
+## 🔧 Troubleshooting
 
 ### Common Issues
 
-1. **No departures showing:**
-   - Check your API key is correct
-   - Verify the station code is valid
+1. **"Not a valid add-on repository"**
+   - Ensure you're using the correct repository URL
+   - Check that the repository is public
+
+2. **No departures showing**
    - Check the add-on logs for errors
+   - Verify station codes are correct
+   - Try with mock data first (no API key)
 
-2. **API errors:**
-   - Ensure your API key is valid and active
-   - Check your internet connection
-   - Verify the National Rail API is accessible
-
-3. **Interface not loading:**
-   - Check the add-on is running
-   - Verify the port configuration
-   - Check browser console for JavaScript errors
+3. **API errors**
+   - Ensure your API key is valid
+   - Check internet connectivity
+   - Verify National Rail API access
 
 ### Logs
 
 View add-on logs in Home Assistant:
 - Go to Settings → Add-ons → National Rail Departure Board
 - Click "Logs" tab
-- Look for any error messages
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-### Development Guidelines
+## 📄 License
 
-1. Follow the existing code style
-2. Add tests for new features
-3. Update documentation as needed
-4. Test thoroughly before submitting
+This project is licensed under the MIT License.
 
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - National Rail for providing the API
 - Home Assistant community for the add-on framework
 - Font Awesome for icons
 - Inter font family for typography
-
-## Support
-
-For support and questions:
-- Open an issue on GitHub
-- Check the Home Assistant community forums
-- Review the troubleshooting section above
 
 ---
 

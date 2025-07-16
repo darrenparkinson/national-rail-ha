@@ -34,7 +34,7 @@ COPY . .
 RUN mkdir -p /data && \
     chown -R app:app /app && \
     chown -R app:app /data && \
-    chmod 755 /data
+    chmod 777 /data
 
 # Switch to app user
 USER app

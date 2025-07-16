@@ -64,6 +64,17 @@ def load_config():
     """Load configuration from Home Assistant"""
     logger.info(f"Loading config from: {CONFIG_FILE}")
     
+    # Debug: Check if file exists and permissions
+    if os.path.exists(CONFIG_FILE):
+        try:
+            stat_info = os.stat(CONFIG_FILE)
+            logger.info(f"Config file exists, permissions: {oct(stat_info.st_mode)}")
+            logger.info(f"File owner: {stat_info.st_uid}, Group: {stat_info.st_gid}")
+        except Exception as e:
+            logger.error(f"Could not stat config file: {e}")
+    else:
+        logger.info("Config file does not exist")
+    
     # Try to read existing config
     if os.path.exists(CONFIG_FILE):
         try:
@@ -88,32 +99,20 @@ def load_config():
     
     logger.info("Config file not found or unreadable, using defaults")
     
+    # Try to get config from environment variables as fallback
+    env_api_key = os.environ.get('API_KEY', '')
+    env_start_station = os.environ.get('START_STATION', 'PAD')
+    
     default_config = {
-        'api_key': '',
-        'start_station': 'PAD',
+        'api_key': env_api_key,
+        'start_station': env_start_station,
         'destination_station': '',
         'refresh_interval': 60,
         'max_departures': 10,
         'time_window': 120
     }
     
-    # Try to create a default config file (but don't fail if we can't)
-    try:
-        # Ensure /data directory exists
-        data_dir = os.path.dirname(CONFIG_FILE)
-        if not os.path.exists(data_dir):
-            os.makedirs(data_dir, exist_ok=True)
-            logger.info(f"Created data directory: {data_dir}")
-        
-        # Try to create with proper permissions
-        with open(CONFIG_FILE, 'w') as f:
-            json.dump(default_config, f, indent=2)
-        os.chmod(CONFIG_FILE, 0o666)  # Make it readable/writable
-        logger.info(f"Created default config file: {CONFIG_FILE}")
-    except Exception as e:
-        logger.warning(f"Could not create config file (this is normal): {e}")
-    
-    logger.info(f"Using default config: {default_config}")
+    logger.info(f"Using default config with env fallback: {default_config}")
     return default_config
 
 def load_stations():

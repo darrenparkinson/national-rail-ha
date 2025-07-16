@@ -34,6 +34,10 @@ def get_ingress_path():
             if base_path:
                 ingress_path = base_path
                 logger.info(f"Detected ingress path: {ingress_path}")
+        else:
+            # If no /ingress, use the full path
+            ingress_path = path.rstrip('/')
+            logger.info(f"Using full path as ingress: {ingress_path}")
     
     return ingress_path
 
@@ -242,7 +246,7 @@ def index():
         config = load_config()
         stations = load_stations()
         logger.info(f"Rendering template with {len(stations)} stations")
-        return render_template('index.html', config=config, stations=stations, get_base_url=get_base_url)
+        return render_template('index.html', config=config, stations=stations)
     except Exception as e:
         logger.error(f"Error in index route: {e}")
         return f"Error: {str(e)}", 500
@@ -314,6 +318,22 @@ def health():
     except Exception as e:
         logger.error(f"Error in health check: {e}")
         return jsonify({'status': 'error', 'error': str(e)}), 500
+
+@app.route('/debug')
+def debug():
+    """Debug endpoint to see request details"""
+    try:
+        return jsonify({
+            'path': request.path,
+            'url': request.url,
+            'base_url': request.base_url,
+            'host': request.host,
+            'headers': dict(request.headers),
+            'ingress_path': get_ingress_path(),
+            'base_url_func': get_base_url()
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8124, debug=False) 

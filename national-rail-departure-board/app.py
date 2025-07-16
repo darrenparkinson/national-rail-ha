@@ -27,15 +27,7 @@ def load_config():
     """Load configuration from Home Assistant"""
     logger.info(f"Loading config from: {CONFIG_FILE}")
     
-    # Ensure /data directory exists
-    data_dir = os.path.dirname(CONFIG_FILE)
-    if not os.path.exists(data_dir):
-        try:
-            os.makedirs(data_dir, exist_ok=True)
-            logger.info(f"Created data directory: {data_dir}")
-        except Exception as e:
-            logger.error(f"Error creating data directory: {e}")
-    
+    # Try to read existing config
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, 'r') as f:
@@ -44,8 +36,8 @@ def load_config():
                 return config
         except Exception as e:
             logger.error(f"Error loading config: {e}")
-    else:
-        logger.info("Config file not found, using defaults")
+    
+    logger.info("Config file not found or unreadable, using defaults")
     
     default_config = {
         'api_key': '',
@@ -56,13 +48,19 @@ def load_config():
         'time_window': 120
     }
     
-    # Try to create a default config file
+    # Try to create a default config file (but don't fail if we can't)
     try:
+        # Ensure /data directory exists
+        data_dir = os.path.dirname(CONFIG_FILE)
+        if not os.path.exists(data_dir):
+            os.makedirs(data_dir, exist_ok=True)
+            logger.info(f"Created data directory: {data_dir}")
+        
         with open(CONFIG_FILE, 'w') as f:
             json.dump(default_config, f, indent=2)
         logger.info(f"Created default config file: {CONFIG_FILE}")
     except Exception as e:
-        logger.error(f"Error creating default config: {e}")
+        logger.warning(f"Could not create config file (this is normal): {e}")
     
     logger.info(f"Using default config: {default_config}")
     return default_config
@@ -236,13 +234,17 @@ def api_departures():
         )
         
         logger.info(f"Returning {len(departures)} departures")
-        return jsonify({
+        response = {
             'departures': departures,
             'station': station_code,
             'timestamp': datetime.now().isoformat()
-        })
+        }
+        logger.info(f"Response: {response}")
+        return jsonify(response)
     except Exception as e:
         logger.error(f"Error in departures API: {e}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/stations')

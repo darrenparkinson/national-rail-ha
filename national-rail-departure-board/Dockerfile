@@ -24,12 +24,19 @@ COPY . .
 # Ensure icon is accessible
 RUN if [ -f icon.png ]; then chmod 644 icon.png; fi
 
-# Create non-root user and set up data directory
-RUN adduser -D -s /bin/sh app && \
-    mkdir -p /data && \
-    chown -R app:app /app && \
-    chown -R app:app /data
+# Create non-root user
+RUN adduser -D -s /bin/sh app
 
+# Copy application files
+COPY . .
+
+# Set up permissions and data directory
+RUN mkdir -p /data && \
+    chown -R app:app /app && \
+    chown -R app:app /data && \
+    chmod 755 /data
+
+# Switch to app user
 USER app
 
 # Expose port

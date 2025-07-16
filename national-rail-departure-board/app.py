@@ -26,6 +26,16 @@ logger = logging.getLogger(__name__)
 def load_config():
     """Load configuration from Home Assistant"""
     logger.info(f"Loading config from: {CONFIG_FILE}")
+    
+    # Ensure /data directory exists
+    data_dir = os.path.dirname(CONFIG_FILE)
+    if not os.path.exists(data_dir):
+        try:
+            os.makedirs(data_dir, exist_ok=True)
+            logger.info(f"Created data directory: {data_dir}")
+        except Exception as e:
+            logger.error(f"Error creating data directory: {e}")
+    
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, 'r') as f:
@@ -45,6 +55,15 @@ def load_config():
         'max_departures': 10,
         'time_window': 120
     }
+    
+    # Try to create a default config file
+    try:
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(default_config, f, indent=2)
+        logger.info(f"Created default config file: {CONFIG_FILE}")
+    except Exception as e:
+        logger.error(f"Error creating default config: {e}")
+    
     logger.info(f"Using default config: {default_config}")
     return default_config
 

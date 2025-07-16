@@ -24,7 +24,7 @@ RUN pip3 install --no-cache-dir --break-system-packages -r requirements.txt
 COPY . .
 
 # Ensure run.sh is executable
-RUN chmod a+x /run.sh
+RUN chmod a+x /app/run.sh
 
 # Ensure icon is accessible
 RUN if [ -f icon.png ]; then chmod 644 icon.png; fi
@@ -49,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8124/health || exit 1
 
 # Start the application
-CMD ["/run.sh"] 
+CMD ["/app/run.sh"] 

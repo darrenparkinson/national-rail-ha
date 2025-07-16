@@ -11,10 +11,10 @@ arch:
 startup: application
 init: false
 ports:
-  8123/tcp: 8123
-webui: "http://[HOST]:[PORT:8123]"
+  8124/tcp: 8124
+webui: "http://[HOST]:[PORT:8124]"
 ingress: true
-ingress_port: 8123
+ingress_port: 8124
 panel_icon: mdi:train
 homeassistant_api: true
 schema:

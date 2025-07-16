@@ -41,19 +41,18 @@ A beautiful departure board for UK railway stations using National Rail data, de
 ```bash
 # Clone the repository
 git clone https://github.com/darrenparkinson/national-rail-ha.git
-cd national-rail-ha
+cd national-rail-ha/national-rail-departure-board
 
 # Install dependencies
 python3 -m venv venv
 source venv/bin/activate
-pip install -r national-rail-departure-board/requirements.txt
+pip install -r requirements.txt
 
 # Run locally
-cd national-rail-departure-board
 python app.py
 ```
 
-Then visit: http://localhost:8123
+Then visit: http://localhost:8124
 
 ## ⚙️ Configuration
 
@@ -91,6 +90,7 @@ The add-on includes comprehensive testing:
 
 ```bash
 # Test the application
+cd national-rail-departure-board
 python test_app.py
 ```
 
@@ -105,10 +105,13 @@ national-rail-ha/
 │   ├── requirements.txt            # Python dependencies
 │   ├── templates/                  # HTML templates
 │   ├── static/                     # CSS, JS, images
-│   └── stations.json              # UK station data
+│   ├── stations.json               # UK station data
+│   ├── ldbws.json                  # National Rail API spec
+│   └── README.md                   # Add-on documentation
+├── repository.yaml                 # Add-on repository config
 ├── README.md                       # This file
-├── SETUP_GUIDE.md                 # Detailed setup guide
-└── test_app.py                    # Test script
+├── SETUP_GUIDE.md                  # Detailed setup guide
+└── Brand Guidelines/, Logos/       # Branding assets (optional)
 ```
 
 ## 🔧 Troubleshooting

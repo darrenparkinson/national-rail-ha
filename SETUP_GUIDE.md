@@ -6,6 +6,7 @@
 
 1. **Install dependencies:**
    ```bash
+   cd national-rail-departure-board
    python3 -m venv venv
    source venv/bin/activate
    pip install -r requirements.txt
@@ -17,7 +18,7 @@
    ```
 
 3. **Access the departure board:**
-   - Open http://localhost:8123 in your browser
+   - Open http://localhost:8124 in your browser
    - The app will show mock data by default
 
 4. **Test the application:**
@@ -45,24 +46,20 @@
 
 ```
 national-rail-ha/
-├── app.py                 # Main Flask application
-├── config.yaml           # Home Assistant add-on configuration
-├── Dockerfile            # Docker container definition
-├── requirements.txt      # Python dependencies
-├── stations.json         # UK station data
-├── ldbws.json           # National Rail API specification
-├── templates/
-│   └── index.html       # Main web interface
-├── static/
-│   ├── css/
-│   │   └── style.css    # National Rail branded styles
-│   ├── js/
-│   │   └── app.js       # Frontend functionality
-│   └── images/
-│       └── nre-logo.png # National Rail logo
-├── test_app.py          # Test script
-├── run_local.py         # Local development script
-└── README.md            # Full documentation
+├── national-rail-departure-board/  # Home Assistant add-on
+│   ├── app.py                      # Main Flask application
+│   ├── config.yaml                 # Add-on configuration
+│   ├── Dockerfile                  # Container definition
+│   ├── requirements.txt            # Python dependencies
+│   ├── templates/                  # HTML templates
+│   ├── static/                     # CSS, JS, images
+│   ├── stations.json               # UK station data
+│   ├── ldbws.json                  # National Rail API spec
+│   └── README.md                   # Add-on documentation
+├── repository.yaml                 # Add-on repository config
+├── README.md                       # Main documentation
+├── SETUP_GUIDE.md                  # This file
+└── Brand Guidelines/, Logos/       # Branding assets (optional)
 ```
 
 ## 🎯 Key Features

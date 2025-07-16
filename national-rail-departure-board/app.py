@@ -18,7 +18,21 @@ CORS(app)
 # Handle Home Assistant ingress
 def get_ingress_path():
     """Get the ingress path from environment variables"""
-    return os.environ.get('SUPERVISOR_INGRESS_PATH', '')
+    # Check for Home Assistant ingress path
+    ingress_path = os.environ.get('SUPERVISOR_INGRESS_PATH', '')
+    
+    # If no environment variable, try to detect from request
+    if not ingress_path and hasattr(request, 'path'):
+        # Home Assistant ingress paths are typically like /b2161d7a_national-rail-departure-board/ingress
+        # We want to extract the base part without /ingress
+        path = request.path
+        if '/ingress' in path:
+            # Remove /ingress and get the base path
+            base_path = path.replace('/ingress', '').rstrip('/')
+            if base_path:
+                ingress_path = base_path
+    
+    return ingress_path
 
 def get_base_url():
     """Get the base URL for static files"""

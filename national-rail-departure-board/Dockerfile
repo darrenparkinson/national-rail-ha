@@ -21,6 +21,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY . .
 
+# Ensure icon is accessible
+RUN if [ -f icon.png ]; then chmod 644 icon.png; fi
+
 # Create non-root user
 RUN adduser -D -s /bin/sh app && chown -R app:app /app
 USER app

@@ -2,7 +2,6 @@ name: "National Rail Departure Board"
 version: "1.0.0"
 slug: "national-rail-departure-board"
 description: "A beautiful departure board for UK railway stations using National Rail data"
-image: "icon.png"
 arch:
   - armhf
   - armv7

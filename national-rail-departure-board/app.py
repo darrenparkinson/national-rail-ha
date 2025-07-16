@@ -71,6 +71,18 @@ def load_config():
                 config = json.load(f)
                 logger.info(f"Loaded config: {config}")
                 return config
+        except PermissionError as e:
+            logger.error(f"Permission denied reading config: {e}")
+            logger.info("Trying to fix permissions...")
+            try:
+                # Try to fix permissions
+                os.chmod(CONFIG_FILE, 0o666)
+                with open(CONFIG_FILE, 'r') as f:
+                    config = json.load(f)
+                    logger.info(f"Successfully loaded config after fixing permissions: {config}")
+                    return config
+            except Exception as e2:
+                logger.error(f"Still cannot read config after fixing permissions: {e2}")
         except Exception as e:
             logger.error(f"Error loading config: {e}")
     
@@ -93,8 +105,10 @@ def load_config():
             os.makedirs(data_dir, exist_ok=True)
             logger.info(f"Created data directory: {data_dir}")
         
+        # Try to create with proper permissions
         with open(CONFIG_FILE, 'w') as f:
             json.dump(default_config, f, indent=2)
+        os.chmod(CONFIG_FILE, 0o666)  # Make it readable/writable
         logger.info(f"Created default config file: {CONFIG_FILE}")
     except Exception as e:
         logger.warning(f"Could not create config file (this is normal): {e}")
@@ -162,7 +176,9 @@ def get_mock_departures():
 
 def get_national_rail_departures(api_key, station_code, destination_code=None, max_rows=10):
     """Get real departure data from National Rail API"""
+    logger.info(f"get_national_rail_departures called with api_key: {bool(api_key)}")
     if not api_key:
+        logger.info("No API key provided, using mock data")
         return get_mock_departures(), True  # Return mock data and flag indicating it's mock
     
     try:
@@ -263,8 +279,13 @@ def api_departures():
         max_rows = int(request.args.get('max_rows', config.get('max_departures', 10)))
         
         logger.info(f"Getting departures for station: {station_code}")
+        api_key = config.get('api_key', '')
+        logger.info(f"API key present: {bool(api_key)}")
+        if api_key:
+            logger.info(f"API key length: {len(api_key)}")
+        
         departures, is_mock_data = get_national_rail_departures(
-            config.get('api_key', ''),
+            api_key,
             station_code,
             destination_code,
             max_rows

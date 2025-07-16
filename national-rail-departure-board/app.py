@@ -23,14 +23,17 @@ def get_ingress_path():
     
     # If no environment variable, try to detect from request
     if not ingress_path and hasattr(request, 'path'):
-        # Home Assistant ingress paths are typically like /b2161d7a_national-rail-departure-board/ingress
+        # Home Assistant ingress paths are variable: /{unique_id}_addon_name/ingress
         # We want to extract the base part without /ingress
         path = request.path
+        logger.info(f"Request path: {path}")
+        
         if '/ingress' in path:
             # Remove /ingress and get the base path
             base_path = path.replace('/ingress', '').rstrip('/')
             if base_path:
                 ingress_path = base_path
+                logger.info(f"Detected ingress path: {ingress_path}")
     
     return ingress_path
 
@@ -295,13 +298,18 @@ def health():
     """Health check endpoint"""
     try:
         logger.info("Health check called")
+        current_path = request.path if hasattr(request, 'path') else 'unknown'
         return jsonify({
             'status': 'healthy', 
             'timestamp': datetime.now().isoformat(),
             'config_loaded': os.path.exists(CONFIG_FILE),
             'stations_loaded': len(load_stations()),
             'ingress_path': get_ingress_path(),
-            'base_url': get_base_url()
+            'base_url': get_base_url(),
+            'current_path': current_path,
+            'environment': {
+                'SUPERVISOR_INGRESS_PATH': os.environ.get('SUPERVISOR_INGRESS_PATH', 'not_set')
+            }
         })
     except Exception as e:
         logger.error(f"Error in health check: {e}")

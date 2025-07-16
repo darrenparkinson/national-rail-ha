@@ -77,20 +77,23 @@ class DepartureBoard {
 
         try {
             // Get the base URL for API calls (handles ingress)
-            // For Home Assistant ingress, the path is like /b2161d7a_national-rail-departure-board/ingress
-            // We need to remove the /ingress part and use the base path
+            // Home Assistant ingress paths are variable: /{unique_id}_addon_name/ingress
+            // We need to extract the base path dynamically
             let baseUrl = window.location.pathname;
             
             // Remove trailing slashes
             baseUrl = baseUrl.replace(/\/+$/, '');
             
             // If we're in ingress mode, remove the /ingress suffix
-            if (baseUrl.endsWith('/ingress')) {
+            // This handles any variable path like /abc123_addon_name/ingress
+            if (baseUrl.includes('/ingress')) {
                 baseUrl = baseUrl.replace(/\/ingress$/, '');
             }
             
             const apiUrl = baseUrl ? `${baseUrl}/api/departures` : '/api/departures';
-            console.log('API URL:', apiUrl); // Debug log
+            console.log('Current path:', window.location.pathname);
+            console.log('Base URL:', baseUrl);
+            console.log('API URL:', apiUrl);
             const response = await fetch(`${apiUrl}?station=${this.currentStation}`);
             
             if (!response.ok) {

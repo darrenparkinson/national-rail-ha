@@ -126,7 +126,7 @@ def get_mock_departures():
 def get_national_rail_departures(api_key, station_code, destination_code=None, max_rows=10):
     """Get real departure data from National Rail API"""
     if not api_key:
-        return get_mock_departures()
+        return get_mock_departures(), True  # Return mock data and flag indicating it's mock
     
     try:
         # National Rail API endpoint
@@ -150,14 +150,14 @@ def get_national_rail_departures(api_key, station_code, destination_code=None, m
         
         if response.status_code == 200:
             data = response.json()
-            return parse_national_rail_response(data)
+            return parse_national_rail_response(data), False  # Real data
         else:
             print(f"API Error: {response.status_code}")
-            return get_mock_departures()
+            return get_mock_departures(), True  # Fallback to mock data
             
     except Exception as e:
         print(f"Error fetching departures: {e}")
-        return get_mock_departures()
+        return get_mock_departures(), True  # Fallback to mock data
 
 def parse_national_rail_response(data):
     """Parse National Rail API response"""
@@ -226,18 +226,19 @@ def api_departures():
         max_rows = int(request.args.get('max_rows', config.get('max_departures', 10)))
         
         logger.info(f"Getting departures for station: {station_code}")
-        departures = get_national_rail_departures(
+        departures, is_mock_data = get_national_rail_departures(
             config.get('api_key', ''),
             station_code,
             destination_code,
             max_rows
         )
         
-        logger.info(f"Returning {len(departures)} departures")
+        logger.info(f"Returning {len(departures)} departures (mock: {is_mock_data})")
         response = {
             'departures': departures,
             'station': station_code,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().isoformat(),
+            'is_mock_data': is_mock_data
         }
         logger.info(f"Response: {response}")
         return jsonify(response)

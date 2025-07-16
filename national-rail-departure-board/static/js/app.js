@@ -86,6 +86,7 @@ class DepartureBoard {
             this.displayDepartures(data.departures);
             this.updateLastUpdated();
             this.updateStationName();
+            this.updateMockDataNotice(data.is_mock_data);
             
         } catch (error) {
             console.error('Error loading departures:', error);
@@ -186,6 +187,13 @@ class DepartureBoard {
             const selectedOption = stationSelect.options[stationSelect.selectedIndex];
             const stationName = selectedOption ? selectedOption.text.split(' (')[0] : 'Departures';
             stationNameElement.textContent = `${stationName} Departures`;
+        }
+    }
+
+    updateMockDataNotice(isMockData) {
+        const mockDataNotice = document.getElementById('mockDataNotice');
+        if (mockDataNotice) {
+            mockDataNotice.style.display = isMockData ? 'flex' : 'none';
         }
     }
 

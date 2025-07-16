@@ -231,6 +231,28 @@ body {
     accent-color: var(--nre-yellow);
 }
 
+/* Mock Data Notice */
+.mock-data-notice {
+    background: linear-gradient(135deg, var(--warning) 0%, #ffb74d 100%);
+    color: var(--nre-blue);
+    padding: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mock-data-notice i {
+    font-size: var(--font-size-base);
+    color: var(--nre-blue);
+}
+
+.mock-data-notice span {
+    flex: 1;
+}
+
 /* Departures Container */
 .departures-container {
     overflow-x: auto;

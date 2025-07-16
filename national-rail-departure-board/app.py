@@ -18,12 +18,26 @@ CORS(app)
 # Configuration
 CONFIG_FILE = '/data/options.json'
 
+# Add debug logging
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 def load_config():
     """Load configuration from Home Assistant"""
+    logger.info(f"Loading config from: {CONFIG_FILE}")
     if os.path.exists(CONFIG_FILE):
-        with open(CONFIG_FILE, 'r') as f:
-            return json.load(f)
-    return {
+        try:
+            with open(CONFIG_FILE, 'r') as f:
+                config = json.load(f)
+                logger.info(f"Loaded config: {config}")
+                return config
+        except Exception as e:
+            logger.error(f"Error loading config: {e}")
+    else:
+        logger.info("Config file not found, using defaults")
+    
+    default_config = {
         'api_key': '',
         'start_station': 'PAD',
         'destination_station': '',
@@ -31,13 +45,22 @@ def load_config():
         'max_departures': 10,
         'time_window': 120
     }
+    logger.info(f"Using default config: {default_config}")
+    return default_config
 
 def load_stations():
     """Load station data"""
     try:
+        logger.info("Loading stations.json")
         with open('stations.json', 'r') as f:
-            return json.load(f)
+            stations = json.load(f)
+            logger.info(f"Loaded {len(stations)} stations")
+            return stations
     except FileNotFoundError:
+        logger.error("stations.json not found")
+        return []
+    except Exception as e:
+        logger.error(f"Error loading stations: {e}")
         return []
 
 def get_mock_departures():
@@ -164,42 +187,71 @@ def parse_national_rail_response(data):
 @app.route('/')
 def index():
     """Main departure board page"""
-    config = load_config()
-    stations = load_stations()
-    return render_template('index.html', config=config, stations=stations)
+    try:
+        logger.info("Loading main page")
+        config = load_config()
+        stations = load_stations()
+        logger.info(f"Rendering template with {len(stations)} stations")
+        return render_template('index.html', config=config, stations=stations)
+    except Exception as e:
+        logger.error(f"Error in index route: {e}")
+        return f"Error: {str(e)}", 500
 
 @app.route('/api/departures')
 def api_departures():
     """API endpoint for departure data"""
-    config = load_config()
-    
-    station_code = request.args.get('station', config.get('start_station', 'PAD'))
-    destination_code = request.args.get('destination', config.get('destination_station', ''))
-    max_rows = int(request.args.get('max_rows', config.get('max_departures', 10)))
-    
-    departures = get_national_rail_departures(
-        config.get('api_key', ''),
-        station_code,
-        destination_code,
-        max_rows
-    )
-    
-    return jsonify({
-        'departures': departures,
-        'station': station_code,
-        'timestamp': datetime.now().isoformat()
-    })
+    try:
+        logger.info("API departures called")
+        config = load_config()
+        
+        station_code = request.args.get('station', config.get('start_station', 'PAD'))
+        destination_code = request.args.get('destination', config.get('destination_station', ''))
+        max_rows = int(request.args.get('max_rows', config.get('max_departures', 10)))
+        
+        logger.info(f"Getting departures for station: {station_code}")
+        departures = get_national_rail_departures(
+            config.get('api_key', ''),
+            station_code,
+            destination_code,
+            max_rows
+        )
+        
+        logger.info(f"Returning {len(departures)} departures")
+        return jsonify({
+            'departures': departures,
+            'station': station_code,
+            'timestamp': datetime.now().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error in departures API: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/stations')
 def api_stations():
     """API endpoint for station data"""
-    stations = load_stations()
-    return jsonify(stations)
+    try:
+        logger.info("API stations called")
+        stations = load_stations()
+        logger.info(f"Returning {len(stations)} stations")
+        return jsonify(stations)
+    except Exception as e:
+        logger.error(f"Error in stations API: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/health')
 def health():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy', 'timestamp': datetime.now().isoformat()})
+    try:
+        logger.info("Health check called")
+        return jsonify({
+            'status': 'healthy', 
+            'timestamp': datetime.now().isoformat(),
+            'config_loaded': os.path.exists(CONFIG_FILE),
+            'stations_loaded': len(load_stations())
+        })
+    except Exception as e:
+        logger.error(f"Error in health check: {e}")
+        return jsonify({'status': 'error', 'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8124, debug=False) 

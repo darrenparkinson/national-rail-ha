@@ -1,4 +1,5 @@
-FROM python:3.11-alpine
+ARG BUILD_FROM
+FROM $BUILD_FROM
 
 # Install system dependencies
 RUN apk add --no-cache \
@@ -7,7 +8,8 @@ RUN apk add --no-cache \
     python3-dev \
     libffi-dev \
     openssl-dev \
-    cargo
+    cargo \
+    bashio
 
 # Set working directory
 WORKDIR /app
@@ -26,9 +28,6 @@ RUN if [ -f icon.png ]; then chmod 644 icon.png; fi
 
 # Create non-root user
 RUN adduser -D -s /bin/sh app
-
-# Copy application files
-COPY . .
 
 # Set up permissions and data directory
 RUN mkdir -p /data && \

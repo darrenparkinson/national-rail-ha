@@ -12,6 +12,13 @@ from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
 
+# Import bashio for Home Assistant add-on configuration
+try:
+    import bashio
+    BASHIO_AVAILABLE = True
+except ImportError:
+    BASHIO_AVAILABLE = False
+
 app = Flask(__name__)
 CORS(app)
 
@@ -61,58 +68,41 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def load_config():
-    """Load configuration from Home Assistant"""
-    logger.info(f"Loading config from: {CONFIG_FILE}")
+    """Load configuration from Home Assistant using bashio"""
+    logger.info("Loading configuration...")
     
-    # Debug: Check if file exists and permissions
-    if os.path.exists(CONFIG_FILE):
+    if BASHIO_AVAILABLE:
         try:
-            stat_info = os.stat(CONFIG_FILE)
-            logger.info(f"Config file exists, permissions: {oct(stat_info.st_mode)}")
-            logger.info(f"File owner: {stat_info.st_uid}, Group: {stat_info.st_gid}")
+            # Use bashio to load configuration
+            config = bashio.config
+            logger.info(f"Loaded config via bashio: {config}")
+            return config
         except Exception as e:
-            logger.error(f"Could not stat config file: {e}")
-    else:
-        logger.info("Config file does not exist")
+            logger.error(f"Error loading config via bashio: {e}")
     
-    # Try to read existing config
+    # Fallback to direct file reading
+    logger.info(f"Falling back to direct file reading from: {CONFIG_FILE}")
+    
     if os.path.exists(CONFIG_FILE):
         try:
             with open(CONFIG_FILE, 'r') as f:
                 config = json.load(f)
-                logger.info(f"Loaded config: {config}")
+                logger.info(f"Loaded config from file: {config}")
                 return config
-        except PermissionError as e:
-            logger.error(f"Permission denied reading config: {e}")
-            logger.info("Trying to fix permissions...")
-            try:
-                # Try to fix permissions
-                os.chmod(CONFIG_FILE, 0o666)
-                with open(CONFIG_FILE, 'r') as f:
-                    config = json.load(f)
-                    logger.info(f"Successfully loaded config after fixing permissions: {config}")
-                    return config
-            except Exception as e2:
-                logger.error(f"Still cannot read config after fixing permissions: {e2}")
         except Exception as e:
-            logger.error(f"Error loading config: {e}")
+            logger.error(f"Error reading config file: {e}")
     
-    logger.info("Config file not found or unreadable, using defaults")
-    
-    # Try to get config from environment variables as fallback
-    env_api_key = os.environ.get('API_KEY', '')
-    env_start_station = os.environ.get('START_STATION', 'PAD')
-    
+    # Default configuration
     default_config = {
-        'api_key': env_api_key,
-        'start_station': env_start_station,
+        'api_key': '',
+        'start_station': 'PAD',
         'destination_station': '',
         'refresh_interval': 60,
         'max_departures': 10,
         'time_window': 120
     }
     
-    logger.info(f"Using default config with env fallback: {default_config}")
+    logger.info(f"Using default config: {default_config}")
     return default_config
 
 def load_stations():

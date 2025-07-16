@@ -77,8 +77,10 @@ class DepartureBoard {
 
         try {
             // Get the base URL for API calls (handles ingress)
-            const baseUrl = window.location.pathname.replace(/\/$/, '');
-            const response = await fetch(`${baseUrl}/api/departures?station=${this.currentStation}`);
+            // Remove any trailing slashes and ensure we don't double up on paths
+            const baseUrl = window.location.pathname.replace(/\/+$/, '');
+            const apiUrl = baseUrl ? `${baseUrl}/api/departures` : '/api/departures';
+            const response = await fetch(`${apiUrl}?station=${this.currentStation}`);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

@@ -2,6 +2,7 @@ name: "National Rail Departure Board"
 version: "1.0.0"
 slug: "national-rail-departure-board"
 description: "A beautiful departure board for UK railway stations using National Rail data"
+url: "https://github.com/darrenparkinson/national-rail-ha"
 arch:
   - armhf
   - armv7
@@ -21,9 +22,9 @@ schema:
   api_key: str
   start_station: str
   destination_station: str
-  refresh_interval: int?
-  max_departures: int?
-  time_window: int?
+  refresh_interval: int
+  max_departures: int
+  time_window: int
 options:
   api_key: ""
   start_station: "PAD"

@@ -15,6 +15,22 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+# Handle Home Assistant ingress
+def get_ingress_path():
+    """Get the ingress path from environment variables"""
+    return os.environ.get('SUPERVISOR_INGRESS_PATH', '')
+
+def get_base_url():
+    """Get the base URL for static files"""
+    ingress_path = get_ingress_path()
+    logger.info(f"Ingress path: '{ingress_path}'")
+    if ingress_path:
+        base_url = ingress_path.rstrip('/')
+        logger.info(f"Base URL: '{base_url}'")
+        return base_url
+    logger.info("No ingress path, using empty base URL")
+    return ''
+
 # Configuration
 CONFIG_FILE = '/data/options.json'
 
@@ -209,7 +225,7 @@ def index():
         config = load_config()
         stations = load_stations()
         logger.info(f"Rendering template with {len(stations)} stations")
-        return render_template('index.html', config=config, stations=stations)
+        return render_template('index.html', config=config, stations=stations, get_base_url=get_base_url)
     except Exception as e:
         logger.error(f"Error in index route: {e}")
         return f"Error: {str(e)}", 500
@@ -269,7 +285,9 @@ def health():
             'status': 'healthy', 
             'timestamp': datetime.now().isoformat(),
             'config_loaded': os.path.exists(CONFIG_FILE),
-            'stations_loaded': len(load_stations())
+            'stations_loaded': len(load_stations()),
+            'ingress_path': get_ingress_path(),
+            'base_url': get_base_url()
         })
     except Exception as e:
         logger.error(f"Error in health check: {e}")

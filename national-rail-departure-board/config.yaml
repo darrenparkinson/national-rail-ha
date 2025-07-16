@@ -15,6 +15,7 @@ ports:
 webui: "http://[HOST]:[PORT:8124]"
 ingress: true
 ingress_port: 8124
+ingress_entry: /hassio_ingress/national-rail-departure-board
 panel_icon: mdi:train
 homeassistant_api: true
 schema:

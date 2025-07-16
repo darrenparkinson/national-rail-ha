@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>National Rail Departure Board</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ get_base_url() }}{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -14,7 +14,7 @@
         <header class="header">
             <div class="header-content">
                 <div class="logo-section">
-                    <img src="{{ url_for('static', filename='images/nre-logo.png') }}" alt="National Rail" class="logo" onerror="this.style.display='none'">
+                    <img src="{{ get_base_url() }}{{ url_for('static', filename='images/nre-logo.png') }}" alt="National Rail" class="logo" onerror="this.style.display='none'">
                     <div class="title">
                         <h1>Departure Board</h1>
                         <div class="station-selector">
@@ -89,6 +89,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ get_base_url() }}{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html> 
